@@ -1,0 +1,47 @@
+version: '3.8'
+services:
+  nginx:
+    container_name: nginx
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
+      - app
+    volumes:
+      - ./src:/var/www
+      - ./nginx/conf.d/:/etc/nginx/conf.d/
+
+  db:
+    image: postgres
+    container_name: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgresql/data:/var/lib/postgres/data
+    environment:
+      POSTGRES_DB: backend
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: password
+
+  app:
+    container_name: backend
+    build:
+      context: ./php
+      dockerfile: Dockerfile
+    volumes:
+      - ./src:/var/www
+    ports:
+      - "9000:9000"  # Correction ici
+    working_dir: /var/www
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgAdmin
+    ports:
+      - "5050:80"
+    depends_on:
+      - db 
+    environment:
+      PGADMIN_DEFAULT_EMAIL: oussamakmar1@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: password
